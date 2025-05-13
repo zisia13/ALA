@@ -3,19 +3,25 @@ import aiohttp
 
 url = "http://localhost:8000/api"
 
-async def post():
+async def post_request():
 
     async with aiohttp.ClientSession() as session:
 
-        test_data = {"message": "hello"}
+        test_data = {"command" : "data"}
 
         async with session.post(url, json = test_data, headers = {"Content-Type": "application/json"}) as response:
 
-            response_data = await response.json()
+            #response_data = await response.json()
             
-            print(f"POST-Response: {response_data}")
+            if response.status != 200:
 
-async def get():
+                print(f"Server answer bad: {response.status}")
+
+            else:
+
+                print("Success")
+
+async def get_request():
 
     async with aiohttp.ClientSession() as session:
 
@@ -27,7 +33,7 @@ async def ala():
 
     while True:
 
-        await post()
+        await post_request()
 
         await asyncio.sleep(5)
 
