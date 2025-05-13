@@ -3,6 +3,23 @@ import aiohttp
 
 url = "http://localhost:8000/api"
 
+json_data = {
+
+    "command" : "data",
+
+    "login" : {
+
+        "username" : "testusername",
+        "password" : "testpassword",
+    },
+
+    "authorization" : {
+
+        "channel_id" : "testchannel",
+        "key" : "testkey"
+    }
+}
+
 async def post_request():
 
     async with aiohttp.ClientSession() as session:
