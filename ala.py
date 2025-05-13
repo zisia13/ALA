@@ -3,9 +3,11 @@ import aiohttp
 
 url = "http://localhost:8000/api"
 
-json_data = {
+json_data_1 = {
 
     "command" : "data",
+
+    "message" : "Helu",
 
     "login" : {
 
@@ -20,13 +22,24 @@ json_data = {
     }
 }
 
+json_data_2 = {
+
+    "command" : "data",
+
+    "message" : "Helu",
+
+    "login" : {
+
+        "username" : "testusername",
+        "password" : "testpassword",
+    }
+}
+
 async def post_request():
 
     async with aiohttp.ClientSession() as session:
 
-        test_data = {"command" : "data"}
-
-        async with session.post(url, json = test_data, headers = {"Content-Type": "application/json"}) as response:
+        async with session.post(url, json = json_data_2, headers = {"Content-Type": "application/json"}) as response:
 
             #response_data = await response.json()
             
