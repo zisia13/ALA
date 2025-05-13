@@ -1,78 +1,58 @@
 import asyncio
 import aiohttp
 
-async def myapi():
+url = "http://localhost:8000/api"
 
-    url = "http://localhost:8000/api"
-    
+async def post():
+
     async with aiohttp.ClientSession() as session:
 
-        #! Test GET-Request
-        async with session.get(url) as response:
-
-            print(f"GET-Response: {await response.text()}")
-        
-        #! Test POST-Request mit JSON-Daten
-        test_data = {"message": "helu"}
+        test_data = {"message": "hello"}
 
         async with session.post(url, json = test_data, headers = {"Content-Type": "application/json"}) as response:
 
-            pass
-            #response_data = await response.json()
-            #
-            #print(f"POST-Response: {response_data}")
+            response_data = await response.json()
+            
+            print(f"POST-Response: {response_data}")
 
-async def ala(interval = 5):
+async def get():
 
-    while True:
+    async with aiohttp.ClientSession() as session:
 
-        await myapi()
+        async with session.get(url) as response:
 
-        await asyncio.sleep(interval)
-
-#! start main function
-asyncio.run(ala())
-
-
-
-
-
-
-
-
-"""
-import sys, os
-import asyncio, aiohttp
-
-
-async def ping():
-
-    try:
-
-        async with aiohttp.ClientSession() as session:
-
-            async with session.get("localhost:8000/api") as response:
-
-                print(f"Status: {response.status}")
-                
-    except:
-
-        print("error")
-
+            print(f"GET-Response: {await response.text()}")
 
 async def ala():
 
     while True:
 
-        await ping()
+        await post()
 
         await asyncio.sleep(5)
 
-
-
-
-
-
-
+#! start main loop
 asyncio.run(ala())
+
+
+
+"""
+async def ping_url(url, interval):
+    while True:
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    print(f"{url} → Status: {response.status}")
+        except Exception as e:
+            print(f"{url} → Fehler: {e}")
+        await asyncio.sleep(interval)
+
+async def main():
+    tasks = [
+        ping_url("https://www.google.com", 10),
+        ping_url("https://www.github.com", 5),
+    ]
+    await asyncio.gather(*tasks)  # Führe beide Loops parallel aus
+
+asyncio.run(main())
 """
