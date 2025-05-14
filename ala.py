@@ -69,7 +69,13 @@ async def ala():
 
     while True:
 
-        await post_request()
+        try:
+
+            await post_request()
+
+        except Exception as network_error:
+
+            print(network_error)
 
         await asyncio.sleep(5)
 
