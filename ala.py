@@ -7,7 +7,10 @@ json_data_1 = {
 
     "command" : "data",
 
-    "message" : "Helu",
+    "data": {
+
+        "message" : "Helu",
+    },
 
     "login" : {
 
@@ -26,7 +29,10 @@ json_data_2 = {
 
     "command" : "data",
 
-    "message" : "Helu",
+    "data": {
+
+        "message" : "Helu",
+    },
 
     "login" : {
 
