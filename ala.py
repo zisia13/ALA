@@ -2,105 +2,89 @@ import asyncio
 import aiohttp
 
 url = "http://localhost:8000/api"
+backup_url = "http://localhost:8000/backup"
 
-json_data_1 = {
+import json
+import sys
 
-    "command" : "data",
+from json_data import (
 
-    "data": {
+    authenticated_json,
+    basic_json,
+    request_backup_json
+)
 
-        "message" : "Helu",
-    },
+class ALA():
 
-    "login" : {
+    def __init__(self):
 
-        "username" : "testusername",
-        "password" : "testpassword",
-    },
+        pass
 
-    "authorization" : {
+    async def print_backup_data(self):
 
-        "channel_id" : "testchannel",
-        "key" : "testkey"
-    }
-}
+        async with aiohttp.ClientSession() as session:
 
-json_data_2 = {
+            async with session.post(backup_url, json = request_backup_json, headers = {"Content-Type": "application/json"}) as response:
 
-    "command" : "data",
+                response_data = await response.json()
 
-    "data": {
+                if response.status != 200:
 
-        "message" : "Helu",
-    },
+                    print(f"Server answer bad: {response.status}")
 
-    "login" : {
+                else:
 
-        "username" : "testusername",
-        "password" : "testpassword",
-    }
-}
-
-async def post_request():
-
-    async with aiohttp.ClientSession() as session:
-
-        async with session.post(url, json = json_data_2, headers = {"Content-Type": "application/json"}) as response:
-
-            #response_data = await response.json()
-            
-            if response.status != 200:
-
-                print(f"Server answer bad: {response.status}")
-
-            else:
-
-                print("Success")
-
-async def get_request():
-
-    async with aiohttp.ClientSession() as session:
-
-        async with session.get(url) as response:
-
-            print(f"GET-Response: {await response.text()}")
-
-async def ala():
-
-    while True:
-
-        try:
-
-            await post_request()
-
-        except Exception as network_error:
-
-            print(network_error)
-
-        await asyncio.sleep(5)
-
-#! start main loop
-asyncio.run(ala())
+                    print(json.dumps(response_data, indent = 4))
+                    print("\nFinished... Exit")
+                    sys.exit(1)
 
 
+    async def post_request(self):
 
-"""
-async def ping_url(url, interval):
-    while True:
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    print(f"{url} → Status: {response.status}")
-        except Exception as e:
-            print(f"{url} → Fehler: {e}")
-        await asyncio.sleep(interval)
+        async with aiohttp.ClientSession() as session:
 
-async def main():
-    tasks = [
-        ping_url("https://www.google.com", 10),
-        ping_url("https://www.github.com", 5),
-    ]
-    await asyncio.gather(*tasks)  # Führe beide Loops parallel aus
+            async with session.post(url, json = authenticated_json, headers = {"Content-Type": "application/json"}) as response:
 
-asyncio.run(main())
-"""
+                #response_data = await response.json()
+
+                if response.status != 200:
+
+                    print(f"Server answer bad: {response.status}")
+
+                else:
+
+                    print("Success")
+
+    async def get_request(self):
+
+        async with aiohttp.ClientSession() as session:
+
+            async with session.get(url) as response:
+
+                print(f"GET-Response: {await response.text()}")
+
+    async def ala(self):
+
+        while True:
+
+            try:
+
+                #await self.post_request()
+
+                await self.print_backup_data()
+
+            except Exception as network_error:
+
+                print(network_error)
+
+            await asyncio.sleep(5)
+
+    def run(self):
+
+        asyncio.run(self.ala())
+
+if __name__ == "__main__":
+
+    ala = ALA()
+
+    ala.run()
