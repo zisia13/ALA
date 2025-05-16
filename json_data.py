@@ -36,6 +36,7 @@ basic_json = {
     }
 }
 
+#TODO ONLY FOR TEST
 request_backup_json = {
 
     "command" : "get_backup",
