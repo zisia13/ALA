@@ -118,6 +118,8 @@ blacklist = [ #! blacklist of backgroud software that are not important
     "spacedeskServiceTray.exe"
 ]
 
+whitelist = [""] #todo fill whitelist
+
 #//                                                                                        
 #!                              Stealer Functions
 #//                                                                                        
