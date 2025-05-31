@@ -114,8 +114,7 @@ blacklist = [ #! blacklist of backgroud software that are not important
     "MoUsoCoreWorker.exe",
     "Razer Synapse Service Process.exe",
     "Razer Synapse Service.exe",
-    "Razer Central.exe",
-    "spacedeskServiceTray.exe"
+    "Razer Central.exe"
 ]
 
 whitelist = [""] #todo fill whitelist
